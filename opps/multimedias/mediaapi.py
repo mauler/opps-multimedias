@@ -99,15 +99,21 @@ class Local(MediaAPI):
 
         return self.get_info(mediahost)
 
+    def get_embed_src(
+            self, mediahost, template_name='multimedias/video_embed.html'):
+        context = {
+            'media': mediahost.media,
+            'mediahost': mediahost,
+            'url': mediahost.media.media_file.url,
+        }
+        return render_to_string(template_name, context)
+
     def get_info(self, mediahost):
         tags = self.tags or [] + DEFAULT_TAGS
 
         mediahost.status = u'ok'
         mediahost.url = mediahost.media.media_file.url
-        mediahost.embed = render_to_string(
-            'multimedias/video_embed.html',
-            {
-                'url': mediahost.url})
+        mediahost.embed = self.get_embed_src(mediahost)
         mediahost.updated = True
         mediahost.save()
 
